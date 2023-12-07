@@ -87,7 +87,6 @@
                 android:layout_height="50dp"
                 android:layout_toRightOf="@id/img_div"
                 android:gravity="center"
-                android:hint="DIV"
                 android:textSize="30dp"
                 android:visibility="invisible">
             </TextView>
@@ -100,6 +99,14 @@
                 android:spinnerMode="dropdown"
                 android:textAlignment="center">
             </Spinner>
+
+            <EditText
+                android:id="@+id/class_tv"
+                android:layout_width="180dp"
+                android:layout_height="50dp"
+                android:layout_toRightOf="@+id/img_div"
+                android:gravity="center"
+                android:hint="enter class"/>
 
         </RelativeLayout>
 

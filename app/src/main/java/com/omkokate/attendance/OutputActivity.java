@@ -19,7 +19,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -70,6 +70,10 @@ public class OutputActivity extends AppCompatActivity {
         div_text=findViewById(R.id.div_text);
         div_text.setText("DIVISION  : "+division);
 
+//        Log.d("myapp2",""+division);
+//        Log.d("myapp2",""+rollNo);
+//        Log.d("myapp2",""+date);
+
         String[] urls=new String[10];
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -84,18 +88,18 @@ public class OutputActivity extends AppCompatActivity {
                             String fieldValue2 = String.valueOf(documentSnapshot.get("num"));
                             int nos=Integer.parseInt(fieldValue2);
                             Log.d("myapp",""+nos);
-                            for (int i = 0; i < urls.length; i++) {
-                                String fieldValue = String.valueOf(documentSnapshot.get(String.valueOf(i)));
-                                urls[i]=fieldValue;
-                                Log.d("myapp",""+urls[i]);
-                            }
+//                            for (int i = 0; i < urls.length; i++) {
+                                String fieldValue = String.valueOf(documentSnapshot.get(String.valueOf(0)));
+//                                urls[i]=fieldValue;
+                                Log.d("myapp3",""+fieldValue);
+//                            }
 
                             LinearLayout linearLayout = findViewById(R.id.linear_shimmer);
                             for (int i = 0; i < nos; i++) {
                                 View view = getLayoutInflater().inflate(R.layout.attendance_shimmer, linearLayout, false);
                                 linearLayout.addView(view);
                             }
-                            extractAttendance(roll,date,urls, nos);
+                            extractAttendance(roll,date,fieldValue, nos);
 
                         } else {
                             // Handle error
@@ -112,152 +116,183 @@ public class OutputActivity extends AppCompatActivity {
         PAList = new ArrayList<>();
     }
 
-    private void extractAttendance(int roll, String date, String[] urls, int nos) {
+    private void extractAttendance(int roll, String date, String FV, int nos) {
 
         name_tv=findViewById(R.id.name_tv);
         roll_tv=findViewById(R.id.roll_tv);
         date_tv=findViewById(R.id.tv_date);
 
-        int i;
-        for (i = 0; i < nos; i++) {
+        int i=0;
+//        long startTime = System.currentTimeMillis();
+//        for (i = 0; i < nos; i++) {
 
-            String url = urls[i];
+//            String url = urls[i];
+            String url=FV;
+
 
             RequestQueue queue = Volley.newRequestQueue(this);
             int finalI = i;
             int finalI1 = i;
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
                 @Override
-                public void onResponse(JSONObject response) {
+                public void onResponse(JSONArray response) {
                     JSONObject atte = null;
-                    try {
-
-                        JSONArray name = response.getJSONArray("name");
-                        JSONArray subname = response.getJSONArray("subname");
-                        JSONArray avg = response.getJSONArray("avg");
-                        JSONArray avgth = response.getJSONArray("avgth");
-                        JSONArray avgpr = response.getJSONArray("avgpr");
-                        JSONArray avg3d = response.getJSONArray("avg3d");
-                        JSONArray avg7d = response.getJSONArray("avg7d");
-                        JSONArray avgmonth = response.getJSONArray("avgmonth");
-                        atte = response.getJSONObject("att");
-
-                        String nametv = name.getString(roll);
-                        name_tv.setText(nametv);
-                        int roll_real = roll + 1;
-                        String Roll = String.valueOf(roll_real);
-                        roll_tv.setText("ROLL NO :  "+Roll);
-
-                        if(atte.has(date)) {
-                            date_tv.setText("Attendance on :  " + date);
-                        }
-
-                        if(!(atte.has(date))) {
-                            RelativeLayout layout = (RelativeLayout) findViewById(R.id.rel_pa);
-                            layout.setVisibility(View.GONE);
-                        }
-
-                        PA eve = new PA();
-
-                        if (atte.has(date)) {
-                            JSONObject atte_date = atte.getJSONObject(date);
-                            Iterator<String> keys = atte_date.keys();
-                            while (keys.hasNext()) {
-                                String key = keys.next();
-                                JSONArray pa = atte_date.getJSONArray(key);
-
-                                String PA = pa.getString(roll+1);
-                                String priority=pa.getString(0);
-                                eve.setPriority(priority);
-
-                                String s_name=subname.getString(0);
-                                s_name=s_name.substring(3);
-                                eve.setSubject(s_name);
-                                eve.setTime(key);
-                                eve.setPresenty(PA);
-                                Log.d("myapp", subname.getString(0) + " " + key + " " + PA);
-                            }
-                            PAList.add(eve);
-                        }
+            for(int ii=0;ii<5;ii++) {
 
 
-                        Attendance att = new Attendance();
+                try {
+                    Log.d("myapp", "response:" + response);
+//                        JSONArray name = response.getJSONArray("name");
+//                        JSONArray subname = response.getJSONArray("subname");
+//                        JSONArray avg = response.getJSONArray("avg");
+//                        JSONArray avgth = response.getJSONArray("avgth");
+//                        JSONArray avgpr = response.getJSONArray("avgpr");
+//                        JSONArray avg3d = response.getJSONArray("avg3d");
+//                        JSONArray avg7d = response.getJSONArray("avg7d");
+//                        JSONArray avgmonth = response.getJSONArray("avgmonth");
+//                        atte = response.getJSONObject("att");
 
-                        att.setSubname(valueSub(subname, 0));
+                    JSONObject subWISE = response.getJSONObject(ii);
+                    String subname = subWISE.getString("subname");
+                    String name = subWISE.getString("name");
+                    String avg = subWISE.getString("avg");
+                    String avgth = subWISE.getString("avgth");
+                    String avgpr = subWISE.getString("avgpr");
+                    String avg3d = subWISE.getString("avg3d");
+                    String avg7d = subWISE.getString("avg7d");
+                    String avgmonth = subWISE.getString("avgmonth");
+                    atte = subWISE.getJSONObject("atte");
 
-                        att.setAvg(valueS(avg, roll));
-                        att.setAvgPB(valueI(avg, roll));
-
-                        att.setAvgth(valueS(avgth, roll));
-                        att.setAvgthPB(valueI(avgth, roll));
-
-                        att.setAvgpr(valueS(avgpr, roll));
-                        att.setAvgprPB(valueI(avgpr, roll));
-
-                        att.setAvg3d(valueS(avg3d, roll));
-                        att.setAvg3dPB(valueI(avg3d, roll));
-
-                        att.setAvg7d(valueS(avg7d, roll));
-                        att.setAvg7dPB(valueI(avg7d, roll));
-
-                        att.setAvgmonth(valueS(avgmonth, roll));
-                        att.setAvgmonthPB(valueI(avgmonth, roll));
-
-                        attendance.add(att);
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        Log.d("myapp","hehe");
-                        Intent i2=new Intent(OutputActivity.this,ErrorActivity.class);
-                        startActivity(i2);
-                    }
-
-                    Collections.sort(attendance, new Comparator<Attendance>() {
-                        @Override
-                        public int compare(Attendance t1, Attendance t2) {
-                            return t1.getSubname().compareToIgnoreCase(t2.getSubname());
-                        }
-                    });
-
-                    Collections.sort(PAList, new Comparator<PA>() {
-                        @Override
-                        public int compare(PA t1, PA t2) {
-                            return t1.getPriority().compareToIgnoreCase(t2.getPriority());
-                        }
-                    });
-//                    Collections.reverse(PAList);
-
-                    recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-                    adapter = new Adapter(getApplicationContext(), attendance);
-                    recyclerView.setAdapter(adapter);
+                    name_tv.setText(name);
+                    int roll_real = roll + 1;
+                    String Roll = String.valueOf(roll_real);
+                    roll_tv.setText("ROLL NO :  " + Roll);
 
                     if (atte.has(date)) {
-                        recyclerViewpa.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-                        PAAdapter = new PAAdapter(getApplicationContext(), PAList);
-                        recyclerViewpa.setAdapter(PAAdapter);
+                        date_tv.setText("Attendance on :  " + date);
+                    }
+                    if (!(atte.has(date))) {
+                        RelativeLayout layout = (RelativeLayout) findViewById(R.id.rel_pa);
+                        layout.setVisibility(View.GONE);
                     }
 
+
+                    PA eve = new PA();
+
+                    if (atte.has(date)) {
+                        JSONObject atte_date = atte.getJSONObject(date);
+                        Iterator<String> keys = atte_date.keys();
+                        while (keys.hasNext()) {
+                            String key = keys.next();
+                            JSONArray pa = atte_date.getJSONArray(key);
+
+                            String PA = pa.getString(roll + 1);
+                            String priority = pa.getString(0);
+                            eve.setPriority(priority);
+
+                            String s_name = subname;
+                            s_name = s_name.substring(3);
+                            eve.setSubject(s_name);
+                            eve.setTime(key);
+                            eve.setPresenty(PA);
+                            Log.d("myapp", subname + " " + key + " " + PA);
+                        }
+                        PAList.add(eve);
+                    }
+
+
+                    Attendance att = new Attendance();
+
+                    att.setSubname(subname);
+
+                    att.setAvg(valueS(avg));
+                    att.setAvgPB(valueI(avg));
+
+                    att.setAvgth(valueS(avgth));
+                    att.setAvgthPB(valueI(avgth));
+
+                    att.setAvgpr(valueS(avgpr));
+                    att.setAvgprPB(valueI(avgpr));
+
+                    att.setAvg3d(valueS(avg3d));
+                    att.setAvg3dPB(valueI(avg3d));
+
+                    att.setAvg7d(valueS(avg7d));
+                    att.setAvg7dPB(valueI(avg7d));
+
+                    att.setAvgmonth(valueS(avgmonth));
+                    att.setAvgmonthPB(valueI(avgmonth));
+
+                    attendance.add(att);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.d("myapp", "hehe");
+                    Intent i2 = new Intent(OutputActivity.this, ErrorActivity.class);
+                    startActivity(i2);
                 }
+
+                Collections.sort(attendance, new Comparator<Attendance>() {
+                    @Override
+                    public int compare(Attendance t1, Attendance t2) {
+                        return t1.getSubname().compareToIgnoreCase(t2.getSubname());
+                    }
+                });
+
+                Collections.sort(PAList, new Comparator<PA>() {
+                    @Override
+                    public int compare(PA t1, PA t2) {
+                        return t1.getPriority().compareToIgnoreCase(t2.getPriority());
+                    }
+                });
+//                    Collections.reverse(PAList);
+
+                recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                adapter = new Adapter(getApplicationContext(), attendance);
+                recyclerView.setAdapter(adapter);
+
+                if (atte.has(date)) {
+                    recyclerViewpa.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                    PAAdapter = new PAAdapter(getApplicationContext(), PAList);
+                    recyclerViewpa.setAdapter(PAAdapter);
+                }
+            }
+
             }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.d("myapp", "onErrorResponse: " + error.getMessage());
-                    Intent i3=new Intent(OutputActivity.this,ErrorActivity.class);
-                    startActivity(i3);
-                }
-            });
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.d("myapp", "onErrorResponse: " + error.getMessage());
+                            Intent i3=new Intent(OutputActivity.this,ErrorActivity.class);
+                            startActivity(i3);
+                        }
+                    });
 
 
-            DefaultRetryPolicy retryPolicy = new DefaultRetryPolicy(0, -1, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
-            jsonObjectRequest.setRetryPolicy(retryPolicy);
+                    DefaultRetryPolicy retryPolicy = new DefaultRetryPolicy(0, -1, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+                    jsonArrayRequest.setRetryPolicy(retryPolicy);
 
-            queue.add(jsonObjectRequest);
-        }
+                    queue.add(jsonArrayRequest);
+
+
+            }
+
+
+
+
+
+
+
+
+
+//        }
+//        long endTime = System.currentTimeMillis();
+//        long timeTaken = endTime - startTime;
+//        Log.d("myapp", "Time taken to load JSON data: " + timeTaken + "ms");
     }
 
 
-    public String valueS(JSONArray jArray,int roll) throws JSONException {
-        String value1=jArray.getString(roll);
+    public String valueS(String jArray) throws JSONException {
+        String value1=jArray;
         float value2=(Float.parseFloat(value1));
         float value3=value2*100;
         int value4=Math.round(value3);
@@ -265,8 +300,8 @@ public class OutputActivity extends AppCompatActivity {
         return valuefin;
     }
 
-    public int valueI(JSONArray jArray, int roll) throws JSONException {
-        String value1 = jArray.getString(roll);
+    public int valueI(String jArray) throws JSONException {
+        String value1 = jArray;
         float value2 = (Float.parseFloat(value1));
         float value3 = value2 * 100;
         int valuefin = Math.round(value3);

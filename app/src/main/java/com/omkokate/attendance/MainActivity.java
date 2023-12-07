@@ -32,7 +32,7 @@ import java.util.Calendar;
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     Spinner spinner;
-    EditText rollNoEditText;
+    EditText rollNoEditText, class_tv;
     TextView datePickerTV, div_tv,star1,star2,star3;
     Button submitButton;
     DatePickerDialog datePickerDialog;
@@ -103,6 +103,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         div_tv = findViewById(R.id.div_tv);
         spinner = findViewById(R.id.spinner);
 
+        class_tv=findViewById(R.id.class_tv);
+
+
         spinner.setOnItemSelectedListener(this);
 
         String[] textSizes = getResources().getStringArray(R.array.divisons);
@@ -130,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String division = div_tv.getText().toString();
+                String division = class_tv.getText().toString();
                 String rollNo = rollNoEditText.getText().toString();
                 String date = datePickerTV.getText().toString();
 
